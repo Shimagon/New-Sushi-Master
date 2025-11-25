@@ -1,0 +1,116 @@
+================================================================================
+寿司VRプロジェクト - セットアップメモ
+================================================================================
+
+■ 重要な変更履歴
+
+1. SteamVR設定の変更（2025/11/26）
+   - OpenVR XR Plugin を削除しました
+   - SteamVR Asset Store版を使用するように変更
+   - 理由：OpenVR XR Pluginとの互換性問題を解決するため
+
+   削除したもの：
+   - Packages/manifest.json から "com.valvesoftware.unity.openvr" の行を削除
+
+   使用するもの：
+   - Assets/steamVRplugin setting/SteamVR/ (Asset Store版)
+
+2. 不要ファイルの削除
+   - nul ファイルを削除（テスト時の残骸）
+   - SushiMaker.cs は残っているが使用していない（削除推奨）
+
+================================================================================
+
+■ チーム統合時の注意事項
+
+【重複エラーが出た場合】
+★★★ クイックフィックスは QUICK_FIX_GUIDE.txt を参照 ★★★
+★★★ 詳細情報は STEAMVR_MIGRATION_REPORT.md を参照 ★★★
+
+810個のSteamVR重複エラーが出る場合：
+
+原因：
+- ローカル環境では OpenVR XR Plugin → SteamVR Asset Store版 に移行済み
+- チーム側に古い設定が残っている
+
+解決方法：
+1. Unityを閉じる
+2. チーム側の古いSteamVRフォルダを削除
+   - Assets/steamVR_plugin/ などの古い方を削除
+   - Assets/steamVRplugin setting/ は残す（新しい正しい設定）
+3. Packages/manifest.json を確認
+   - "com.valvesoftware.unity.openvr" の行があれば削除
+4. シーンファイルのGUID修正（Missing Prefabエラーが出る場合）
+   - 旧Player.prefab GUID: dc06161b6d97feb419f45f03b62e14b9
+   - 新Player.prefab GUID: 23e529e47021a0c4caf79fafc34c3b23
+   - sedコマンドで一括置換（詳細はレポート参照）
+5. Unityを再起動
+
+================================================================================
+
+■ 必要なAsset Storeアセット
+
+チーム側で各自インポートが必要：
+1. SteamVR Plugin (Asset Store版)
+2. Cartoon FX Remaster (CFXR Magic Poof エフェクト用)
+3. GASTRO Sushi Food Pack FREE (3Dモデル用)
+
+================================================================================
+
+■ 主要スクリプト
+
+Assets/scripts/
+- GrabbableRice.cs    : 米オブジェクト（左手）、寿司生成ロジック
+- GrabbableFish.cs    : 魚オブジェクト（右手）
+- SushiThrowable.cs   : 寿司の投げる機能
+- FishType.cs         : 魚の種類管理
+- SushiMaker.cs       : 旧版（使用していない、削除推奨）
+
+================================================================================
+
+■ 主要Prefab
+
+Assets/
+- Rice.prefab         : 米（GrabbableRice.cs 使用）
+- MaguroNeta.prefab   : マグロ魚
+- TamagoNeta.prefab   : たまご魚
+- SalmonNeta.prefab   : サーモン魚
+- MaguroSushi.prefab  : マグロ寿司
+- TamagoSushi.prefab  : たまご寿司
+- SalmonSushi.prefab  : サーモン寿司
+
+================================================================================
+
+■ 寿司生成システムの仕様
+
+1. 左手で米を掴む
+2. 右手で魚を掴む
+3. 米と魚を衝突させる
+4. 寿司が生成される（Magic Poofエフェクト付き）
+5. 寿司は自動で右手にアタッチされる
+6. 寿司を投げることができる（SushiThrowable）
+
+デバッグモード：
+- Rice.prefab の GrabbableRice コンポーネント
+- allowWithoutHand = true にすると、手で持たなくても寿司生成可能
+- Scene view でオブジェクトを手動で動かしてテスト可能
+
+================================================================================
+
+■ バグ修正履歴
+
+1. 寿司が2個生成される問題（解決済み）
+   - 原因：SushiMaker.cs と GrabbableRice.cs が両方付いていた
+   - 解決：SushiMaker.cs をRice.prefabから削除
+   - 追加対策：hasCreatedSushi フラグで重複防止
+
+2. エフェクトが表示されない問題（解決済み）
+   - 原因：エフェクトを衝突点に生成→即座に破棄されていた
+   - 解決：寿司生成後、寿司の位置にエフェクトを生成
+
+3. VR手で持たないとテストできない問題（解決済み）
+   - 解決：allowWithoutHand デバッグモードを追加
+
+================================================================================
+
+最終更新：2025/11/26

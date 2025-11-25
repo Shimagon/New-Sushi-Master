@@ -1,0 +1,65 @@
+================================================================================
+SteamVR重複エラー - クイックフィックスガイド
+================================================================================
+
+【状況1】プルしたら810個のエラーが出た
+----------------------------------------
+エラー: Assembly with name 'SteamVR_***' already exists
+
+修正コマンド:
+1. Unityを閉じる
+2. 以下を実行:
+
+rm -rf "Assets/steamVR_plugin"
+rm -f "Assets/steamVR_plugin.meta"
+
+3. Unityを起動
+
+
+【状況2】Missing Prefab エラーが出た
+----------------------------------------
+エラー: Missing Prefab with guid: dc06161b6d97feb419f45f03b62e14b9
+
+修正コマンド:
+1. Unityを閉じる
+2. 以下を実行:
+
+sed -i 's/dc06161b6d97feb419f45f03b62e14b9/23e529e47021a0c4caf79fafc34c3b23/g' "Assets/Scenes/SampleScene.unity"
+
+# Interactions_Example.unity は削除済み（壊れていたため）
+
+3. キャッシュをクリア:
+
+rm -rf "Library/ScriptAssemblies" "Library/StateCache" "Library/ScriptMapper"
+
+4. Unityを起動
+
+
+【状況3】両方のエラーが出た
+----------------------------------------
+上記2つを順番に実行してください。
+
+
+【正しい状態の確認】
+----------------------------------------
+以下のコマンドで確認できます:
+
+# 古いフォルダがないことを確認
+ls -la Assets/ | grep "steamvr_plugin"
+→ 何も表示されなければOK
+
+# 新しいフォルダがあることを確認
+ls -la Assets/ | grep "steamVRplugin setting"
+→ 表示されればOK
+
+# OpenVRがないことを確認
+grep "openvr" Packages/manifest.json
+→ 何も表示されなければOK
+
+
+【詳細情報】
+----------------------------------------
+詳しくは STEAMVR_MIGRATION_REPORT.md を参照してください。
+
+
+================================================================================
